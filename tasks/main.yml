@@ -1,0 +1,21 @@
+---
+
+- name: ansible | Get DEB architecture
+  shell: dpkg --print-architecture
+  register: deb_architecture
+
+- name: ansible | Print DEB architecture
+  debug:
+    msg: "deb_architecture.stdout: {{ deb_architecture.stdout }}"
+
+- name: ansible | install libffi-dev library (arm ami ansible install fails)
+  apt: name=libffi-dev state=latest update_cache=yes
+  when: deb_architecture.stdout == "arm64"
+
+- name: ansible | ensure ansible module is installed
+  pip:
+    name: ansible
+    version: "{{ ansible_install_version }}"
+    virtualenv: "{{ ops_venv }}"
+    virtualenv_site_packages: yes
+    virtualenv_python: python3
